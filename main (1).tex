@@ -1,0 +1,1041 @@
+\documentclass[a4paper,12pt]{report} % Définit la taille de la page et la police par défaut
+
+% --- Packages de base ---
+\usepackage[utf8]{inputenc} % Gère les caractères accentués
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel} % Définit la langue en français
+\usepackage{geometry} % Pour gérer les marges
+\geometry{margin=2.5cm} % Marges standard de 2.5cm
+
+% --- Paramètres de style ---
+\usepackage{mathptmx} % Utilise la police Times New Roman (standard académique)
+\renewcommand{\baselinestretch}{1.5} % Interligne de 1.5 pour la lisibilité
+\setlength{\parskip}{6pt} % Espacement entre les paragraphes
+
+%-----------------------------------------------------------------------------------------
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{times} % Police Times Roman
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{setspace}
+\onehalfspacing % Interligne 1,5
+\usepackage{indentfirst} % Premier paragraphe indenté
+\usepackage{enumitem}
+\setlist{nosep, left=0pt} % Liste sans trop d'espace
+\usepackage{booktabs} % Tableaux propres
+\usepackage{array}
+\usepackage{caption}
+\captionsetup{justification=justified, font=small}
+\usepackage{float} % Pour [H]
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{titlesec}
+\titleformat{\chapter}
+  {\normalfont\Large\bfseries}{\chaptertitlename\ \thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+\setcounter{secnumdepth}{2} % Numéroter jusqu'à subsection
+
+
+% --- Début du document ----------------------------------------------------------------
+
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\Large Université de Kinshasa \par}
+\vspace{0.5cm}
+{\large Faculté des Sciences et Technologies \par}
+{\large Mention Mathématiques, Statistique et Informatique \par}
+\vspace{0.5cm}
+{\Large Travail de fin d'année \par}
+\vspace{0.5cm}
+{\Large \textbf{Logique Floue en Intelligence Artificielle} \par}
+\vspace{0.5cm}
+{\Large \textbf{Sujet :} Système expert flou pour l'aide à l'estimation du risque de paludisme (prototype pédagogique) : Étude comparative des modèles de Mamdani et de Sugeno \par}
+\vspace{1cm}
+{\large \textbf{Étudiants :} \par}
+{\large MUBIALA KIESE SAMUEL \par}
+{\large LUVETO DIALUNGANA SALOMON \par}
+{\large WABA MPWO EXAUCE \par}
+\vspace{1cm}
+{\large \textbf{Encadreurs :} \par}
+{\large Prof. Dr. Pierre KAFUNDA KATALAY \par}
+{\large Asst. Gradi KAMINGU LUBWELE \par}
+\vfill
+{\large Année académique 2024-2025 \par}
+\end{titlepage}
+
+%-------------------------------------------------------------------------------------
+
+\newpage
+\section*{INTRODUCTION GÉNÉRALE}
+\addcontentsline{toc}{section}{INTRODUCTION GÉNÉRALE}
+
+L'intelligence artificielle occupe aujourd'hui une place importante dans de nombreux
+domaines tels que la finance, l'industrie, les télécommunications et la santé. Dans le do-
+maine médical, les systèmes intelligents sont de plus en plus utilisés afin d'assister les
+professionnels de santé dans la prise de décision et l'établissement des diagnostics.
+
+Cependant, les informations médicales sont souvent imprécises, incomplètes ou incer-
+taines. Un patient peut, par exemple, présenter une fièvre modérée, une fatigue légère ou
+une douleur difficile à quantifier avec précision. Les méthodes classiques basées sur la lo-
+gique booléenne montrent certaines limites lorsqu'il s'agit de traiter ce type d'information.
+La logique floue, introduite par Lotfi A. Zadeh en 1965, constitue une approche effi-
+cace pour modéliser l'incertitude et le raisonnement humain. Elle permet de représenter
+des concepts linguistiques tels que « faible », « moyen » ou « élevé », et d'effectuer des
+raisonnements à partir d'informations imprécises.
+
+Parmi les systèmes d'inférence floue les plus utilisés figurent les modèles de Mamdani
+et de Sugeno. Le modèle de Mamdani est apprécié pour sa simplicité et son interprétabi-
+lité, tandis que le modèle de Sugeno est souvent privilégié pour sa rapidité de calcul et
+son adaptation aux applications nécessitant une prise de décision automatisée.
+
+Le présent travail a pour objectif de concevoir un \textbf{prototype pédagogique} de système
+expert flou destiné à l'estimation du risque de paludisme et de réaliser une étude comparative
+entre les modèles de Mamdani et de Sugeno. Ce prototype exploite trois symptômes médicaux
+simplifiés afin d'illustrer, à des fins d'apprentissage, le fonctionnement des deux modèles
+d'inférence floue ; il ne constitue en aucun cas un outil de diagnostic médical validé.
+
+Pour atteindre cet objectif, nous présenterons d'abord les fondements théoriques de la
+logique floue et des systèmes experts. Ensuite, nous concevrons le système expert flou basé
+sur les deux modèles d'inférence. Une implémentation informatique sera réalisée
+afin de tester les performances des approches étudiées, avec une attention particulière portée
+à la reproductibilité des calculs. Enfin, une comparaison étendue (couvrant un grand nombre
+de scénarios, une analyse de sensibilité et une comparaison des temps d'exécution) permettra
+de mettre en évidence les avantages et les limites de chaque modèle.
+
+%-------------- CHAPITRE 1 --------------------------------------------
+
+\newpage
+\chapter{FONDEMENTS THÉORIQUES}
+
+\section{Intelligence Artificielle et Systèmes Experts}
+
+L'intelligence artificielle (IA) est une branche de l'informatique qui vise à concevoir des systèmes capables de reproduire certaines capacités de l'intelligence humaine telles que l'apprentissage, le raisonnement, la résolution de problèmes, la prise de décision et la reconnaissance de formes.
+
+Depuis plusieurs décennies, l'intelligence artificielle connaît une évolution remarquable grâce à l'augmentation de la puissance de calcul des ordinateurs et à la disponibilité de grandes quantités de données. Aujourd'hui, elle est utilisée dans de nombreux secteurs tels que la santé, l'industrie, les transports, la finance et l'éducation.
+
+Parmi les nombreuses applications de l'intelligence artificielle figurent les systèmes experts. Un système expert est un programme informatique conçu pour reproduire le raisonnement d'un spécialiste humain dans un domaine précis. Son objectif principal est d'aider les utilisateurs à prendre des décisions ou à résoudre des problèmes complexes en s'appuyant sur des connaissances préalablement acquises.
+
+Un système expert repose généralement sur trois composantes principales :
+
+\subsection*{Base de connaissances}
+La base de connaissances contient l'ensemble des informations, des faits et des règles permettant au système de résoudre un problème. Ces connaissances proviennent généralement d'experts humains du domaine concerné.
+
+\subsection*{Moteur d'inférence}
+Le moteur d'inférence constitue le cœur du système expert. Il analyse les informations fournies par l'utilisateur et applique les règles de la base de connaissances afin de produire une conclusion ou une recommandation.
+
+\subsection*{Interface utilisateur}
+L'interface utilisateur permet la communication entre l'utilisateur et le système expert. Elle facilite la saisie des données ainsi que l'affichage des résultats obtenus.
+
+Dans le domaine médical, les systèmes experts sont largement utilisés pour assister les médecins dans l'analyse des symptômes, l'identification des maladies et la proposition de diagnostics préliminaires. Toutefois, les informations médicales étant souvent imprécises ou incertaines, les systèmes experts classiques présentent certaines limites.
+
+Afin de mieux gérer cette incertitude, les chercheurs ont introduit la logique floue dans les systèmes experts. Cette approche permet de représenter des connaissances exprimées sous forme linguistique et de raisonner à partir de données imprécises, ce qui la rend particulièrement adaptée aux applications médicales.
+
+\section{Logique Floue}
+
+La logique floue est une extension de la logique classique proposée en 1965 par le mathématicien Lotfi Zadeh. Elle a été développée afin de représenter et traiter les informations imprécises ou incertaines qui apparaissent fréquemment dans les situations réelles.
+
+Dans la logique classique, une affirmation ne peut prendre que deux valeurs possibles : vrai ou faux. Par exemple, si la température d'un patient est supérieure à 38°C, il est considéré comme ayant de la fièvre ; sinon, il n'en a pas. Cette approche binaire est simple mais ne reflète pas toujours la réalité.
+
+En effet, dans la pratique médicale, il est difficile de définir une frontière précise entre l'absence et la présence d'un symptôme. Une température de 37,9°C peut être considérée comme légèrement élevée sans pour autant correspondre à une forte fièvre. De même, une douleur peut être faible, modérée ou intense selon l'appréciation du patient.
+
+La logique floue permet de représenter cette incertitude grâce à la notion de degré d'appartenance. Au lieu d'appartenir totalement ou de ne pas appartenir du tout à une catégorie, un élément peut appartenir partiellement à plusieurs catégories simultanément.
+
+Par exemple, un patient présentant une température de 38°C peut appartenir à la catégorie « Fièvre faible » avec un degré de 0,6 et à la catégorie « Fièvre élevée » avec un degré de 0,4. Ces valeurs sont comprises entre 0 et 1 et traduisent le niveau d'appartenance à chaque ensemble flou.
+
+Grâce à cette approche, la logique floue se rapproche davantage du raisonnement humain. Elle permet de manipuler des concepts linguistiques tels que « faible », « moyen », « élevé », « probable » ou « important », qui sont difficiles à modéliser à l'aide des méthodes classiques.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison entre la logique classique et la logique floue}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Critère} & \textbf{Logique classique} & \textbf{Logique floue} \\
+\hline
+Valeurs possibles & 0 ou 1 & Entre 0 et 1 \\
+Nature du raisonnement & Binaire & Graduelle \\
+Gestion de l'incertitude & Faible & Élevée \\
+Représentation connaissances humaines & Limitée & Très bonne \\
+Adaptation au diagnostic médical & Moyenne & Excellente \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Ensembles Flous et Fonctions d'Appartenance}
+
+\subsection{Ensembles Flous}
+
+Dans la théorie classique des ensembles, un élément appartient ou n'appartient pas à un ensemble donné. Ainsi, son degré d'appartenance est soit égal à 0, soit égal à 1. Cette représentation binaire ne permet pas de modéliser les situations intermédiaires. Pour résoudre ce problème, la logique floue introduit la notion d'ensemble flou.
+
+Un ensemble flou \( A \) est défini par une fonction d'appartenance \( \mu_A(x) \) qui associe à chaque élément \( x \) un degré d'appartenance compris entre 0 et 1 :
+
+\[
+\mu_A(x) \in [0, 1]
+\]
+
+où :
+\begin{itemize}
+\item \( A \) représente l'ensemble flou ;
+\item \( x \) représente un élément ;
+\item \( \mu_A(x) \) représente son degré d'appartenance.
+\end{itemize}
+
+Lorsque :
+\begin{itemize}
+\item \( \mu_A(x) = 0 \) : l'élément n'appartient pas à l'ensemble ;
+\item \( \mu_A(x) = 1 \) : l'élément appartient totalement à l'ensemble ;
+\item \( 0 < \mu_A(x) < 1 \) : l'élément appartient partiellement à l'ensemble.
+\end{itemize}
+
+\subsection*{Exemple Médical}
+
+Considérons l'ensemble flou \textit{Fièvre Élevée}.
+
+\begin{table}[H]
+\centering
+\caption{Degrés d'appartenance pour la fièvre}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Température (°C)} & \textbf{Degré d'appartenance} \\
+\hline
+37 & 0 \\
+38 & 0,3 \\
+39 & 0,7 \\
+40 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Fonctions d'Appartenance}
+
+Une fonction d'appartenance décrit la manière dont un élément entre progressivement dans un ensemble flou.
+
+\subsubsection{Fonction Triangulaire}
+
+La fonction triangulaire est simple et largement utilisée dans les systèmes experts. Elle est définie par trois paramètres :
+\begin{itemize}
+\item \( a \) : début ;
+\item \( b \) : sommet ;
+\item \( c \) : fin.
+\end{itemize}
+
+\[
+\mu(x) = 
+\begin{cases}
+0 & \text{si } x \leq a \\
+\frac{x-a}{b-a} & \text{si } a < x \leq b \\
+\frac{c-x}{c-b} & \text{si } b < x < c \\
+0 & \text{si } x \geq c
+\end{cases}
+\]
+
+\subsubsection{Fonction Trapézoïdale}
+
+La fonction trapézoïdale est une extension de la fonction triangulaire. Elle est définie par quatre paramètres : \( a, b, c, d \). Elle est particulièrement adaptée lorsqu'une plage entière de valeurs appartient complètement à une catégorie.
+
+\subsection{Importance des Fonctions d'Appartenance}
+
+Les fonctions d'appartenance constituent la base de tout système flou. Elles permettent de transformer des données numériques réelles en informations linguistiques exploitables par le moteur d'inférence.
+
+Dans notre système expert, elles seront utilisées pour représenter différents symptômes tels que la température corporelle, le niveau de fatigue, l'intensité des maux de tête.
+
+\section{Système d'Inférence Floue}
+
+Un système d'inférence floue (Fuzzy Inference System – FIS) est un mécanisme permettant de reproduire le raisonnement humain à partir d'informations imprécises ou incertaines. Il reçoit des données en entrée, applique un ensemble de règles floues puis produit une décision ou une recommandation en sortie.
+
+Dans le domaine médical, un système d'inférence floue peut recevoir comme entrées différents symptômes observés chez un patient, tels que la température corporelle, l'intensité des maux de tête ou le niveau de fatigue, puis estimer le niveau de risque d'une maladie.
+
+Un système d'inférence floue est généralement composé de quatre éléments principaux.
+
+\subsection{Fuzzification}
+
+La fuzzification consiste à transformer les données numériques réelles en valeurs linguistiques floues. Par exemple :
+\begin{itemize}
+\item Température = 39°C peut devenir :
+\begin{itemize}
+\item Fièvre faible : 0,1
+\item Fièvre moyenne : 0,4
+\item Fièvre élevée : 0,8
+\end{itemize}
+\end{itemize}
+Cette étape permet au système de raisonner à partir de concepts proches du langage humain.
+
+\subsection{Base de Règles Floues}
+
+La base de règles contient les connaissances des experts. Ces connaissances sont généralement exprimées sous forme de règles SI–ALORS.
+
+\begin{itemize}
+\item Règle 1 : SI Température est Élevée ET Fatigue est Forte ALORS Risque est Élevé.
+\item Règle 2 : SI Température est Moyenne ET Fatigue est Modérée ALORS Risque est Moyen.
+\end{itemize}
+
+\subsection{Moteur d'Inférence}
+
+Le moteur d'inférence applique les règles floues aux données fournies. Il calcule le degré d'activation de chaque règle puis combine les résultats obtenus. Les opérateurs les plus utilisés sont :
+\begin{itemize}
+\item ET (AND) : minimum
+\item OU (OR) : maximum
+\end{itemize}
+
+\[
+\text{Activation} = \min(0,8 ; 0,7) = 0,7
+\]
+
+\subsection{Défuzzification}
+
+Après l'inférence, le résultat obtenu est encore flou. La défuzzification consiste à transformer ce résultat flou en une valeur numérique exploitable. Par exemple :
+\begin{itemize}
+\item Risque faible : 0,2
+\item Risque moyen : 0,5
+\item Risque élevé : 0,8
+\end{itemize}
+
+\subsection{Architecture Générale d'un Système Flou}
+
+Le fonctionnement général d'un système flou peut être résumé comme suit :
+
+\begin{center}
+Entrées numériques \\
+$\downarrow$ \\
+Fuzzification \\
+$\downarrow$ \\
+Base de règles \\
+$\downarrow$ \\
+Moteur d'inférence \\
+$\downarrow$ \\
+Défuzzification \\
+$\downarrow$ \\
+Sortie numérique
+\end{center}
+
+\section{Modèle de Mamdani}
+
+Le modèle de Mamdani est l'un des systèmes d'inférence floue les plus connus et les plus utilisés dans le domaine de l'intelligence artificielle. Il a été proposé en 1975 par Ebrahim Mamdani dans le cadre du contrôle automatique de systèmes industriels. Ce modèle est particulièrement apprécié pour sa simplicité et sa capacité à représenter le raisonnement humain à travers des règles linguistiques facilement interprétables.
+
+Dans un système de Mamdani, les variables d'entrée et de sortie sont représentées par des ensembles flous. Les règles sont généralement exprimées sous la forme :
+
+\begin{center}
+\textbf{SI condition ALORS conclusion}
+\end{center}
+
+Par exemple :
+
+\begin{center}
+\textit{SI Température est Élevée ET Fatigue est Forte ALORS Risque de maladie est Élevé.}
+\end{center}
+
+\subsection{Étapes du modèle de Mamdani}
+
+\subsubsection{Fuzzification}
+Les données numériques fournies par l'utilisateur sont converties en degrés d'appartenance à différents ensembles flous.
+
+\subsubsection{Évaluation des règles}
+Chaque règle est évaluée afin de déterminer son niveau d'activation. L'opérateur ET est généralement implémenté par la fonction minimum :
+
+\[
+\alpha = \min(\mu_A(x), \mu_B(y))
+\]
+
+où \(\alpha\) représente le degré d'activation de la règle.
+
+\subsubsection{Implication et agrégation}
+Chaque ensemble flou de sortie associé à une règle activée est \textbf{écrêté} (borné par le haut) à son degré d'activation \(\alpha\) (implication de Mamdani). Les ensembles écrêtés issus des différentes règles sont ensuite combinés à l'aide de l'opérateur maximum :
+
+\[
+\mu_{\text{sortie}}(z) = \max\Big(\min(\mu_1(z), \alpha_1), \min(\mu_2(z), \alpha_2), \ldots, \min(\mu_n(z), \alpha_n)\Big)
+\]
+
+\subsubsection{Défuzzification}
+Le résultat flou agrégé est transformé en une valeur numérique unique grâce à la méthode du \textbf{centre de gravité (centroïde)} :
+
+\[
+z^* = \frac{\int z \, \mu_{\text{sortie}}(z) \, dz}{\int \mu_{\text{sortie}}(z) \, dz}
+\]
+
+\textbf{Remarque méthodologique importante.} Dans une première version de ce travail, cette intégrale avait été approximée, par simplicité, par une moyenne pondérée de trois valeurs fixes (20, 50, 80) représentant le centre de chaque ensemble flou de sortie. Cette simplification — proche de la méthode dite « du maximum pondéré » — ne correspond pas à une véritable intégration du centroïde et ne restitue pas correctement l'aire des ensembles flous agrégés lorsque plusieurs règles de niveaux différents sont actives simultanément. Dans la version corrigée présentée ici, le centre de gravité est calculé par \textbf{intégration numérique} (règle des trapèzes) sur l'univers de sortie discrétisé \([0,100]\) avec un pas de 0,1, ce qui constitue une véritable défuzzification par centroïde.
+
+\subsection{Architecture du modèle de Mamdani}
+
+\begin{center}
+Entrées numériques \\
+$\downarrow$ \\
+Fuzzification \\
+$\downarrow$ \\
+Règles floues \\
+$\downarrow$ \\
+Implication (écrêtage) \\
+$\downarrow$ \\
+Agrégation (max) \\
+$\downarrow$ \\
+Défuzzification (centroïde) \\
+$\downarrow$ \\
+Sortie numérique
+\end{center}
+
+\subsection{Avantages du modèle de Mamdani}
+
+\begin{itemize}
+\item Compréhension intuitive ;
+\item Facilité d'interprétation ;
+\item Représentation proche du raisonnement humain ;
+\item Bonne adaptation aux systèmes experts médicaux ;
+\item Large utilisation dans les applications industrielles et académiques.
+\end{itemize}
+
+\subsection{Limites du modèle de Mamdani}
+
+\begin{itemize}
+\item Calculs plus coûteux lorsque le nombre de règles augmente, en raison de l'intégration numérique nécessaire à la défuzzification par centroïde ;
+\item Processus de défuzzification plus lent que celui de Sugeno (voir comparaison des temps d'exécution, section 3.7.3) ;
+\item Difficulté d'utilisation dans les systèmes nécessitant une réponse très rapide.
+\end{itemize}
+
+\subsection{Application au prototype}
+
+Dans notre projet, le modèle de Mamdani sera utilisé pour analyser plusieurs symptômes tels que la température corporelle, l'intensité des maux de tête et le niveau de fatigue afin d'estimer le niveau de risque associé au paludisme.
+
+\section{Modèle de Sugeno}
+
+Le modèle de Sugeno, également appelé modèle de Takagi-Sugeno-Kang (TSK), a été proposé en 1985. Contrairement au modèle de Mamdani, les conséquences des règles sont exprimées sous forme de valeurs numériques ou de fonctions mathématiques linéaires.
+
+Une règle typique du modèle de Sugeno (ordre 0, sortie constante ou « singleton ») peut s'écrire :
+
+\begin{center}
+\textit{SI Température est Élevée ET Fatigue est Forte ALORS Risque = 85}
+\end{center}
+
+\subsection{Étapes du modèle de Sugeno}
+
+\subsubsection{Fuzzification}
+Comme dans le modèle de Mamdani, les données d'entrée sont transformées en degrés d'appartenance.
+
+\subsubsection{Évaluation des règles}
+Le poids d'une règle est calculé par :
+
+\[
+w_i = \min(\mu_A(x), \mu_B(y))
+\]
+
+où \(w_i\) représente le poids de la règle \(i\).
+
+\subsubsection{Calcul de la sortie}
+La sortie finale est obtenue par une moyenne pondérée :
+
+\[
+z = \frac{\sum_{i=1}^{n} w_i z_i}{\sum_{i=1}^{n} w_i}
+\]
+
+avec :
+\begin{itemize}
+\item \(w_i\) : poids de la règle \(i\) ;
+\item \(z_i\) : sortie associée à la règle \(i\).
+\end{itemize}
+
+\subsection{Avantages du modèle de Sugeno}
+
+\begin{itemize}
+\item Rapidité d'exécution ;
+\item Faible coût de calcul (pas d'intégration numérique) ;
+\item Production directe d'une valeur numérique ;
+\item Facilité d'intégration avec les réseaux neuronaux ;
+\item Très utilisé dans les systèmes neuro-flous.
+\end{itemize}
+
+\subsection{Limites du modèle de Sugeno}
+
+\begin{itemize}
+\item Moins intuitif pour les utilisateurs ;
+\item Plus difficile à interpréter ;
+\item Les règles sont parfois moins proches du raisonnement humain ;
+\item La conception des fonctions de sortie peut devenir complexe.
+\end{itemize}
+
+\subsection{Comparaison préliminaire entre Mamdani et Sugeno}
+
+\begin{table}[H]
+\centering
+\caption{Comparaison entre les modèles de Mamdani et de Sugeno}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Critère} & \textbf{Mamdani} & \textbf{Sugeno} \\
+\hline
+Sortie & Ensemble flou & Valeur numérique \\
+Défuzzification & Nécessaire (centroïde) & Non nécessaire \\
+Interprétation & Très facile & Moyenne \\
+Rapidité & Moyenne & Élevée \\
+Complexité de calcul & Plus élevée & Plus faible \\
+Adaptation aux systèmes experts & Excellente & Bonne \\
+Adaptation aux systèmes temps réel & Moyenne & Excellente \\
+\hline
+\end{tabular}
+\end{table}
+
+%---------- CHAPITRE 2 ------------------------------------------------------------------
+
+\newpage
+\chapter{CONCEPTION DU PROTOTYPE}
+
+\section{Présentation du problème}
+
+Le diagnostic médical constitue une tâche complexe nécessitant l'analyse de nombreux symptômes dont l'interprétation peut varier d'un patient à un autre. Dans certaines situations, les symptômes observés ne permettent pas de conclure immédiatement à la présence ou à l'absence d'une maladie.
+
+Le paludisme figure parmi les maladies les plus fréquentes en République Démocratique du Congo. Ses manifestations cliniques incluent généralement la fièvre, la fatigue, les maux de tête et les frissons. Cependant, l'intensité de ces symptômes varie selon les patients, ce qui rend parfois le diagnostic difficile.
+
+L'objectif de ce projet est de concevoir un \textbf{prototype pédagogique} de système expert flou illustrant, à partir de trois symptômes observés chez un patient, le fonctionnement des modèles de Mamdani et de Sugeno appliqués à un cas médical simplifié. Ce prototype ne remplace en aucun cas un diagnostic médical réel (voir section \ref{sec:limites-portee}).
+
+\section{Choix des variables d'entrée et de sortie}
+
+Afin de concevoir un système expert flou simple, cohérent et facilement interprétable, trois symptômes représentatifs du paludisme ont été retenus comme variables d'entrée.
+
+\subsection{Variables d'entrée}
+
+\begin{table}[H]
+\centering
+\caption{Variables d'entrée du système expert}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Variable} & \textbf{Intervalle} \\
+\hline
+Température corporelle & 35°C à 42°C \\
+Niveau de fatigue & 0 à 10 \\
+Intensité des maux de tête & 0 à 10 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Variable de sortie}
+
+\begin{table}[H]
+\centering
+\caption{Variable de sortie du système expert}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Variable} & \textbf{Intervalle} \\
+\hline
+Risque de paludisme (indicatif) & 0 à 100 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Justification du choix des variables}
+
+\begin{itemize}
+\item \textbf{Température corporelle} : la fièvre constitue l'un des principaux signes cliniques du paludisme.
+\item \textbf{Niveau de fatigue} : les patients atteints de paludisme présentent généralement une faiblesse physique importante.
+\item \textbf{Intensité des maux de tête} : les céphalées sont fréquemment rapportées par les patients atteints de paludisme.
+\end{itemize}
+
+Ces trois variables constituent une \textbf{simplification volontaire} à visée pédagogique : un diagnostic réel du paludisme repose sur un examen clinique complet et, surtout, sur un test biologique (goutte épaisse, test de diagnostic rapide), qu'aucun système flou ne saurait remplacer.
+
+%-------------------------------
+\section{Variables linguistiques}
+
+Dans un système flou, chaque variable est représentée par plusieurs ensembles flous appelés variables linguistiques.
+
+\subsection{Température corporelle}
+
+\begin{table}[H]
+\centering
+\caption{Ensembles flous de la température corporelle}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Intervalle} \\
+\hline
+Faible & 35 – 37 \\
+Moyenne & 36 – 39 \\
+Élevée & 38 – 42 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Niveau de fatigue}
+
+\begin{table}[H]
+\centering
+\caption{Ensembles flous du niveau de fatigue}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Intervalle} \\
+\hline
+Faible & 0 – 4 \\
+Moyenne & 3 – 7 \\
+Forte & 6 – 10 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Intensité des maux de tête}
+
+\begin{table}[H]
+\centering
+\caption{Ensembles flous des maux de tête}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Intervalle} \\
+\hline
+Faible & 0 – 4 \\
+Moyen & 3 – 7 \\
+Fort & 6 – 10 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Risque de paludisme}
+
+\begin{table}[H]
+\centering
+\caption{Ensembles flous du risque de paludisme}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Intervalle} \\
+\hline
+Faible & 0 – 40 \\
+Moyen & 30 – 70 \\
+Élevé & 60 – 100 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Fonctions d'appartenance}
+
+Les fonctions d'appartenance permettent de représenter mathématiquement les variables linguistiques utilisées dans le système flou. Nous utilisons des fonctions triangulaires en raison de leur simplicité de mise en œuvre.
+
+\[
+\mu(x) = 
+\begin{cases}
+0 & \text{si } x \leq a \\
+\dfrac{x - a}{b - a} & \text{si } a < x \leq b \\[1em]
+\dfrac{c - x}{c - b} & \text{si } b < x < c \\
+0 & \text{si } x \geq c
+\end{cases}
+\]
+
+\begin{table}[H]
+\centering
+\caption{Paramètres des ensembles flous de la température}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Paramètres (a, b, c)} \\
+\hline
+Faible & (35, 36, 37) \\
+Moyenne & (36, 37.5, 39) \\
+Élevée & (38, 40, 42) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Paramètres des ensembles flous de la fatigue}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Paramètres (a, b, c)} \\
+\hline
+Faible & (0, 2, 4) \\
+Moyenne & (3, 5, 7) \\
+Forte & (6, 8, 10) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Paramètres des ensembles flous des maux de tête}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Paramètres (a, b, c)} \\
+\hline
+Faible & (0, 2, 4) \\
+Moyenne & (3, 5, 7) \\
+Fort & (6, 8, 10) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Paramètres des ensembles flous du risque de paludisme}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Ensemble flou} & \textbf{Paramètres (a, b, c)} \\
+\hline
+Faible & (0, 20, 40) \\
+Moyenne & (30, 50, 70) \\
+Élevée & (60, 80, 100) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fonctions_appartenance.png}
+\caption{Fonctions d'appartenance des quatre variables du système, générées directement par le script Python \texttt{fuzzy\_paludisme.py} (reproductible).}
+\end{figure}
+
+\subsection{Exemple de calcul}
+
+Considérons un patient présentant une température corporelle de 39°C. Pour l'ensemble flou « Élevée » défini par les paramètres (38, 40, 42) :
+
+\[
+\mu_{\text{élevée}}(39) = \frac{39 - 38}{40 - 38} = \frac{1}{2} = 0,5
+\]
+
+%-------------------------------------------------------------
+\section{Base de règles floues}
+
+\begin{enumerate}
+\item SI Température est Élevée ET Fatigue est Forte ET Maux de tête sont Forts ALORS Risque est Élevé.
+\item SI Température est Élevée ET Fatigue est Forte ET Maux de tête sont Moyens ALORS Risque est Élevé.
+\item SI Température est Élevée ET Fatigue est Moyenne ET Maux de tête sont Forts ALORS Risque est Élevé.
+\item SI Température est Moyenne ET Fatigue est Moyenne ET Maux de tête sont Moyens ALORS Risque est Moyen.
+\item SI Température est Moyenne ET Fatigue est Forte ET Maux de tête sont Moyens ALORS Risque est Moyen.
+\item SI Température est Moyenne ET Fatigue est Moyenne ET Maux de tête sont Forts ALORS Risque est Moyen.
+\item SI Température est Faible ET Fatigue est Faible ET Maux de tête sont Faibles ALORS Risque est Faible.
+\item SI Température est Faible ET Fatigue est Moyenne ET Maux de tête sont Faibles ALORS Risque est Faible.
+\item SI Température est Moyenne ET Fatigue est Faible ET Maux de tête sont Faibles ALORS Risque est Faible.
+\item[10.] SI Température est Élevée ET Fatigue est Forte ET Maux de tête sont Faibles ALORS Risque est Moyen.
+\item[11.] SI Température est Faible ET Fatigue est Forte ET Maux de tête sont Forts ALORS Risque est Moyen.
+\item[12.] SI Température est Moyenne ET Fatigue est Forte ET Maux de tête sont Forts ALORS Risque est Élevé.
+\end{enumerate}
+
+\subsection{Interprétation médicale des règles}
+
+\begin{itemize}
+\item Les règles R1 à R3 et R12 correspondent aux situations où plusieurs symptômes importants sont observés simultanément. Le système conclut donc à un risque élevé.
+\item Les règles R4 à R6, R10 et R11 représentent des situations intermédiaires. Le risque est alors considéré comme moyen.
+\item Les règles R7 à R9 décrivent des situations où les symptômes sont peu marqués. Le système conclut donc à un faible risque.
+\end{itemize}
+
+\textbf{Avertissement.} Ces douze règles ont été construites par les auteurs à partir de leur compréhension générale des symptômes du paludisme, à titre pédagogique. Elles \textbf{n'ont pas été validées par un professionnel de santé ni par des données cliniques réelles}, et ne doivent donc pas être interprétées comme un protocole médical.
+
+%------------------------------------------------------------------------------
+
+\section{Construction du système d'inférence de Mamdani}
+
+\subsection{Fuzzification}
+
+Considérons le patient suivant :
+
+\begin{table}[H]
+\centering
+\caption{Données du patient 1}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Variable} & \textbf{Valeur} \\
+\hline
+Température & 39°C \\
+Fatigue & 7 \\
+Maux de tête & 8 \\
+\hline
+\end{tabular}
+\end{table}
+
+Après application des fonctions d'appartenance (valeurs calculées directement par \texttt{fuzzification\_temp}, \texttt{fuzzification\_fatigue} et \texttt{fuzzification\_maux}) :
+
+\begin{table}[H]
+\centering
+\caption{Résultat de la fuzzification (patient 1)}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Variable} & \textbf{Ensemble flou} & \textbf{Degré d'appartenance} \\
+\hline
+Température & Élevée & 0,5 \\
+Fatigue & Forte & 0,5 \\
+Maux de tête & Fort & 1,0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Activation des règles}
+
+Pour la règle R1 (Température Élevée ET Fatigue Forte ET Maux Forts $\rightarrow$ Risque Élevé) :
+
+\[
+\alpha_{R1} = \min(0,5 ; 0,5 ; 1,0) = 0,5
+\]
+
+Seule la règle R1 est activée pour ce patient (les autres règles impliquent au moins une condition dont le degré d'appartenance est nul pour ces valeurs). La règle est donc activée avec une force égale à 0,5.
+
+\subsection{Implication, agrégation et défuzzification}
+
+L'ensemble flou de sortie « Élevé » (défini par les paramètres (60, 80, 100)) est écrêté à 0,5. Comme aucune autre règle n'est activée, l'ensemble agrégé se réduit à ce seul ensemble écrêté. Le centre de gravité de ce trapèze, calculé par intégration numérique, donne :
+
+\[
+z^* = 80{,}00\,\%
+\]
+
+Ce résultat est exactement reproduit par le script \texttt{fuzzy\_paludisme.py} (fonction \texttt{inference\_mamdani}). Le système conclut à un risque élevé de paludisme pour ce patient.
+
+\subsection{Algorithme du système de Mamdani}
+
+\begin{enumerate}
+\item Lire les symptômes du patient (température, fatigue, maux de tête) ;
+\item Fuzzifier les entrées (calcul des degrés d'appartenance) ;
+\item Activer les règles floues (calcul du min pour chaque règle) ;
+\item Écrêter puis agréger les conclusions (max des règles activées) ;
+\item Effectuer la défuzzification par centre de gravité (intégration numérique) ;
+\item Afficher le risque de paludisme.
+\end{enumerate}
+
+\section{Construction du système d'inférence de Sugeno}
+
+Le modèle de Sugeno utilise les mêmes variables d'entrée et la même base de règles que le modèle de Mamdani, avec des sorties numériques constantes par règle.
+
+\begin{table}[H]
+\centering
+\caption{Valeurs numériques associées aux niveaux de risque (Sugeno, ordre 0)}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Niveau de risque} & \textbf{Valeur Sugeno} \\
+\hline
+Faible & 25 \\
+Moyen & 50 \\
+Élevé & 85 \\
+\hline
+\end{tabular}
+\end{table}
+
+Pour le patient 1, seule la règle R1 est activée avec un poids \(w_1 = \min(0,5;0,5;1,0) = 0,5\). La sortie finale est donc directement la valeur associée à cette règle :
+
+\[
+z = \frac{0{,}5 \times 85}{0{,}5} = 85{,}00\,\%
+\]
+
+\subsection{Algorithme du système de Sugeno}
+
+\begin{enumerate}
+\item Lire les symptômes du patient ;
+\item Fuzzifier les entrées ;
+\item Calculer les poids des règles (min des degrés d'appartenance) ;
+\item Calculer la moyenne pondérée des sorties numériques ;
+\item Afficher le risque de paludisme.
+\end{enumerate}
+
+%---------------------------------------------------------------------------------------------------
+
+\newpage
+\chapter{IMPLÉMENTATION INFORMATIQUE ET ÉTUDE COMPARATIVE}
+
+\section{Environnement de développement}
+
+L'implémentation a été réalisée en Python (Google Colab). Les bibliothèques utilisées sont \texttt{NumPy} (calculs numériques, y compris l'intégration numérique du centroïde), \texttt{Matplotlib} (visualisation) et \texttt{Pandas} (tableaux de résultats).
+
+\textbf{Note importante} : conformément aux consignes du travail, aucune bibliothèque réalisant directement l'inférence floue (comme \texttt{scikit-fuzzy}) n'a été utilisée. Toutes les méthodes (fuzzification, activation des règles, écrêtage, agrégation, défuzzification par centroïde) ont été implémentées manuellement, y compris l'intégration numérique.
+
+\section{Code source (extrait corrigé)}
+
+Le fichier complet \texttt{fuzzy\_paludisme.py} (fourni en dépôt GitHub, voir section \ref{sec:github}) contient l'ensemble du code. L'extrait ci-dessous illustre la correction principale apportée au modèle de Mamdani : le remplacement de la moyenne pondérée par un véritable centre de gravité, calculé par intégration numérique (règle des trapèzes) sur l'ensemble flou agrégé.
+
+\begin{verbatim}
+Z = np.linspace(0, 100, 1001)  # univers de sortie discrétisé, pas 0.1
+MU_SORTIE = {nom: np.array([fonction_triangulaire(z, *p) for z in Z])
+             for nom, p in PARAMS_RISQUE.items()}
+
+def inference_mamdani(temp, fatigue, maux):
+    t_fuzz = fuzzification_temp(temp)
+    f_fuzz = fuzzification_fatigue(fatigue)
+    m_fuzz = fuzzification_maux(maux)
+
+    activation = {'Faible': 0.0, 'Moyen': 0.0, 'Élevé': 0.0}
+    for (t_c, f_c, m_c, sortie) in REGLES:
+        alpha = min(t_fuzz[t_c], f_fuzz[f_c], m_fuzz[m_c])
+        activation[sortie] = max(activation[sortie], alpha)
+
+    # Implication (écrêtage) + agrégation (max)
+    mu_agrege = np.zeros_like(Z)
+    for nom, alpha in activation.items():
+        if alpha > 0:
+            ecrete = np.minimum(MU_SORTIE[nom], alpha)
+            mu_agrege = np.maximum(mu_agrege, ecrete)
+
+    # Défuzzification : vrai centre de gravité par intégration numérique
+    denom = np.trapezoid(mu_agrege, Z)
+    risque = np.trapezoid(Z * mu_agrege, Z) / denom if denom > 0 else 0.0
+    return risque, activation
+\end{verbatim}
+
+\section{Résultats reproductibles sur les 5 patients du rapport}
+
+Le tableau suivant a été régénéré directement en exécutant \texttt{fuzzy\_paludisme.py} ; chaque valeur est donc reproductible par quiconque exécute le script.
+
+\begin{table}[H]
+\centering
+\caption{Résultats comparatifs des modèles de Mamdani et Sugeno (valeurs recalculées et reproductibles)}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Patient} & \textbf{Temp. (°C)} & \textbf{Fatigue} & \textbf{Maux} & \textbf{Mamdani (\%)} & \textbf{Sugeno (\%)} \\
+\hline
+1 & 39 & 7 & 8 & 80,00 & 85,00 \\
+2 & 37 & 5 & 4 & 50,00 & 50,00 \\
+3 & 36 & 2 & 2 & 20,00 & 25,00 \\
+4 & 38 & 8 & 6 & 50,00 & 50,00 \\
+5 & 40 & 9 & 9 & 80,00 & 85,00 \\
+\hline
+\end{tabular}
+\end{table}
+
+On observe que, pour ce petit échantillon, un seul niveau de risque est activé à chaque fois : le centre de gravité d'un unique ensemble triangulaire symétrique écrêté reste égal à son centre, quel que soit le niveau d'écrêtage, ce qui explique que Mamdani retombe ici sur les mêmes valeurs que l'ancienne approximation. La section suivante montre que ce n'est pas le cas dès que \textbf{plusieurs règles de niveaux différents} sont activées simultanément.
+
+\subsection{Cas où la correction change réellement le résultat}
+
+Pour le scénario (température = 36,25°C, fatigue = 7,5, maux = 7,5), deux règles de niveaux différents s'activent simultanément (Moyen à 0,75 et Élevé à 0,167). Le vrai centre de gravité de l'ensemble agrégé donne un risque de \textbf{57,02 \%}, contre \textbf{55,45 \%} avec l'ancienne moyenne pondérée par les valeurs fixes (20, 50, 80) — un écart de 1,6 point qui illustre concrètement pourquoi la véritable intégration du centroïde est nécessaire dès que les activations se chevauchent.
+
+\section{Étude comparative étendue}
+\label{sec:etude-etendue}
+
+Afin de répondre à la remarque relative au caractère limité de la comparaison à 5 patients, une étude systématique a été menée sur une grille de \textbf{288 scénarios} combinant température (35°C à 42°C, pas de 1°C), fatigue (0 à 10, pas de 2) et maux de tête (0 à 10, pas de 2).
+
+\begin{table}[H]
+\centering
+\caption{Statistiques descriptives sur les 288 scénarios}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Statistique} & \textbf{Mamdani (\%)} & \textbf{Sugeno (\%)} & \textbf{Écart (Mamdani $-$ Sugeno)} \\
+\hline
+Moyenne & 8,54 & 8,92 & $-0,38$ \\
+Écart-type & 22,07 & 23,09 & 1,33 \\
+Minimum & 0,00 & 0,00 & $-5,00$ \\
+Maximum & 80,00 & 85,00 & 0,00 \\
+\hline
+\end{tabular}
+\end{table}
+
+La corrélation entre les sorties de Mamdani et de Sugeno sur ces 288 scénarios est de \textbf{0,9993}, avec un écart absolu moyen de \textbf{0,38 point} et un écart absolu maximal de \textbf{5 points}. Les deux modèles produisent donc des estimations très cohérentes entre elles sur l'ensemble du domaine d'entrée exploré, ce qui renforce la confiance dans l'implémentation (les deux modèles, construits indépendamment à partir de la même base de règles, convergent).
+
+\subsection{Analyse de sensibilité}
+
+Pour compléter l'étude, la sensibilité du risque estimé à la température a été analysée en maintenant fatigue = 5 et maux = 5, et en faisant varier la température de 35°C à 42°C par pas fin (100 points).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{sensibilite_temperature.png}
+\caption{Sensibilité du risque estimé à la température (fatigue et maux fixés à 5). Le modèle de Mamdani produit une courbe plus lisse (grâce à l'intégration du centroïde), tandis que le modèle de Sugeno présente des paliers plus marqués, hérités des valeurs de sortie constantes par règle.}
+\end{figure}
+
+\subsection{Comparaison des temps d'exécution}
+\label{subsec:temps-execution}
+
+Le tableau ci-dessous compare les temps d'exécution des deux modèles sur 2000 inférences successives, avec des entrées aléatoires (mêmes graine aléatoire pour les deux modèles, exécution sur la même machine).
+
+\begin{table}[H]
+\centering
+\caption{Temps d'exécution comparés (2000 inférences)}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Modèle} & \textbf{Temps total} & \textbf{Temps moyen par inférence} \\
+\hline
+Mamdani (centroïde, intégration numérique) & $\sim$100 ms & $\sim$50 µs \\
+Sugeno (moyenne pondérée) & $\sim$16 ms & $\sim$8 µs \\
+\hline
+\end{tabular}
+\end{table}
+
+Sugeno s'exécute environ \textbf{6 fois plus vite} que Mamdani dans cette implémentation, ce qui confirme empiriquement — et non plus seulement théoriquement — l'avantage de Sugeno en termes de rapidité, directement imputable à l'intégration numérique requise par le centroïde de Mamdani.
+
+\section{Portée et limites du prototype}
+\label{sec:limites-portee}
+
+Ce travail doit être compris comme un \textbf{prototype pédagogique} destiné à illustrer le fonctionnement des systèmes d'inférence floue de Mamdani et de Sugeno, et non comme un outil de diagnostic médical validé. En particulier :
+
+\begin{itemize}
+\item Les trois symptômes retenus (température, fatigue, maux de tête) constituent une simplification importante du tableau clinique réel du paludisme, qui inclut d'autres signes (frissons, nausées, douleurs musculaires) et nécessite un test biologique pour confirmation ;
+\item La base de règles a été construite par les auteurs sur la base de leur compréhension générale du sujet, sans validation par un professionnel de santé ni par une base de données de patients réels ;
+\item Les fonctions d'appartenance (bornes des ensembles flous) sont des choix raisonnables mais arbitraires, non calibrés sur des données cliniques ;
+\item Aucune évaluation de performance diagnostique (sensibilité, spécificité, courbe ROC) par rapport à des cas confirmés n'a été réalisée, faute de données.
+\end{itemize}
+
+Le système ne doit donc en aucun cas être utilisé pour orienter une décision médicale réelle. Les perspectives de la conclusion générale (section suivante) proposent des pistes pour rapprocher ce prototype d'un outil réellement validé.
+
+\section{Dépôt GitHub et déploiement}
+\label{sec:github}
+
+Conformément aux exigences du travail, le projet est structuré pour être déposé sur GitHub et déployé. La structure de dépôt recommandée est la suivante :
+
+\begin{verbatim}
+paludisme-flou/
+  fuzzy_paludisme.py       # implementation complete (Mamdani + Sugeno)
+  streamlit_app.py         # interface web interactive (deploiement)
+  requirements.txt         # dependances (numpy, matplotlib, pandas, streamlit)
+  README.md                # description, installation, avertissement medical
+  rapport/main.tex         # ce rapport
+  figures/                 # fonctions_appartenance.png, sensibilite_temperature.png
+\end{verbatim}
+
+L'interface \texttt{streamlit\_app.py} fournie permet de saisir les trois symptômes d'un patient et d'afficher instantanément les estimations de Mamdani et de Sugeno ; elle peut être déployée gratuitement sur Streamlit Community Cloud en connectant le dépôt GitHub, ce qui répond au critère de déploiement fonctionnel.
+
+%------------ CONCLUSION ---------------------------------------------
+
+\newpage
+\section*{CONCLUSION GÉNÉRALE}
+\addcontentsline{toc}{section}{CONCLUSION GÉNÉRALE}
+
+L'objectif de ce travail était de concevoir un prototype pédagogique de système expert flou pour l'estimation du risque de paludisme, et de comparer les modèles de Mamdani et de Sugeno.
+
+Les concepts fondamentaux de la logique floue ont été étudiés (ensembles flous, fonctions d'appartenance, systèmes d'inférence floue), puis une base de règles a été élaborée et implémentée manuellement en Python pour les deux modèles.
+
+\subsection*{Résultats obtenus}
+
+\begin{itemize}
+\item Le \textbf{modèle de Mamdani}, désormais implémenté avec un véritable centre de gravité calculé par intégration numérique, offre une meilleure interprétabilité et un résultat plus fidèle à la théorie, au prix d'un temps de calcul environ 6 fois supérieur à celui de Sugeno ;
+\item Le \textbf{modèle de Sugeno} confirme sa rapidité d'exécution sur 2000 inférences testées, et reste bien adapté aux applications temps réel ;
+\item Sur 288 scénarios systématiquement testés, les deux modèles produisent des sorties fortement corrélées (0,9993), avec un écart absolu moyen limité à 0,38 point, ce qui valide la cohérence de l'implémentation des deux modèles à partir de la même base de règles.
+\end{itemize}
+
+\subsection*{Perspectives}
+
+\begin{itemize}
+\item Faire valider la base de règles et les fonctions d'appartenance par un professionnel de santé, et les calibrer sur des données cliniques réelles ;
+\item Ajouter davantage de symptômes (frissons, nausées, douleurs musculaires) ;
+\item Évaluer formellement la performance diagnostique (sensibilité, spécificité) sur une base de patients confirmés ;
+\item Étendre le système à d'autres maladies (typhoïde, méningite, COVID-19) ;
+\item Explorer les systèmes neuro-flous (ANFIS) pour apprendre les règles et les fonctions d'appartenance à partir de données ;
+\item Finaliser le déploiement web (Streamlit) et le dépôt GitHub public avec documentation complète.
+\end{itemize}
+
+% ------------------------------------------------------------------666
+
+\newpage
+\begin{thebibliography}{9}
+
+\bibitem{zadeh1965}
+ZADEH, Lotfi A. \textit{Fuzzy sets}. Information and control, 1965, vol. 8, no 3, p. 338-353.
+
+\bibitem{mamdani1975}
+MAMDANI, Ebrahim H. et ASSILIAN, S. \textit{An experiment in linguistic synthesis with a fuzzy logic controller}. International journal of man-machine studies, 1975, vol. 7, no 1, p. 1-13.
+
+\bibitem{takagi1985}
+TAKAGI, Tomohiro et SUGENO, Michio. \textit{Fuzzy identification of systems and its applications to modeling and control}. IEEE transactions on systems, man, and cybernetics, 1985, no 1, p. 116-132.
+
+\bibitem{jang1993}
+JANG, Jyh-Shing Roger. \textit{ANFIS: adaptive-network-based fuzzy inference system}. IEEE transactions on systems, man, and cybernetics, 1993, vol. 23, no 3, p. 665-685.
+
+\bibitem{kruse2011}
+KRUSE, Rudolf ; GEBHARDT, Joachim ; KLAWONN, Frank. \textit{Foundations of fuzzy systems}. John Wiley \& Sons, 2011.
+
+\bibitem{klir1995}
+KLIR, George J. et YUAN, Bo. \textit{Fuzzy sets and fuzzy logic}. New Jersey : Prentice hall, 1995, vol. 4.
+
+\bibitem{ross2010}
+ROSS, Timothy J. \textit{Fuzzy logic with engineering applications}. John Wiley \& Sons, 2010.
+
+\bibitem{negnevitsky2005}
+NEGNEVITSKY, Michael. \textit{Artificial intelligence: a guide to intelligent systems}. Pearson Education, 2005.
+
+\bibitem{dubois1980}
+DUBOIS, Didier et PRADE, Henri. \textit{Fuzzy sets and systems: Theory and applications}. Academic press, 1980.
+
+\bibitem{oms2024}
+ORGANISATION MONDIALE DE LA SANTÉ. \textit{Paludisme : fiche d'information}. OMS, 2024.
+
+\end{thebibliography}
+
+\end{document}
